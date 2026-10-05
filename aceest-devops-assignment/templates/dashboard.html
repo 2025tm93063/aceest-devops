@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ACEest Dashboard</title>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { background:#1a1a1a; color:#fff; font-family:Arial,sans-serif; }
+    header { background:#d4af37; color:#000; padding:20px 30px; display:flex; justify-content:space-between; align-items:center; }
+    header h1 { font-size:24px; }
+    header a { color:#000; text-decoration:none; font-weight:bold; background:#fff; padding:6px 14px; border-radius:5px; }
+    .container { padding:30px; }
+    .top-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+    .btn { padding:10px 20px; background:#d4af37; color:#000; text-decoration:none; border-radius:5px; font-weight:bold; }
+    .btn:hover { background:#c9a227; }
+    .flash { background:#27ae60; color:#fff; padding:10px 20px; border-radius:5px; margin-bottom:20px; }
+    table { width:100%; border-collapse:collapse; background:#222; border-radius:8px; overflow:hidden; }
+    th { background:#d4af37; color:#000; padding:12px 16px; text-align:left; }
+    td { padding:12px 16px; border-bottom:1px solid #333; }
+    tr:hover { background:#2a2a2a; }
+    a.link { color:#d4af37; text-decoration:none; }
+    a.link:hover { text-decoration:underline; }
+    .badge-active { background:#27ae60; color:#fff; padding:3px 10px; border-radius:12px; font-size:12px; }
+    .badge-inactive { background:#c0392b; color:#fff; padding:3px 10px; border-radius:12px; font-size:12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ACEest Dashboard &mdash; {{ session['role'] }} ({{ session['username'] }})</h1>
+    <a href="{{ url_for('logout') }}">Logout</a>
+  </header>
+  <div class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}<div class="flash">{{ messages[0] }}</div>{% endif %}
+    {% endwith %}
+
+    <div class="top-bar">
+      <h2>Clients ({{ clients|length }})</h2>
+      <div>
+        <a href="{{ url_for('add_client') }}" class="btn">+ Add Client</a>
+        {% if session['role'] == 'Admin' %}
+          &nbsp;<a href="{{ url_for('add_user') }}" class="btn">+ Add User</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Program</th><th>Membership</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for c in clients %}
+        <tr>
+          <td><a href="{{ url_for('client_profile', name=c['name']) }}" class="link">{{ c['name'] }}</a></td>
+          <td>{{ c['program'] or '—' }}</td>
+          <td>
+            {% if c['membership_status'] == 'Active' %}
+              <span class="badge-active">Active</span>
+            {% else %}
+              <span class="badge-inactive">{{ c['membership_status'] }}</span>
+            {% endif %}
+          </td>
+          <td><a href="{{ url_for('client_profile', name=c['name']) }}" class="link">View</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" style="text-align:center;color:#777;">No clients yet. Add one!</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

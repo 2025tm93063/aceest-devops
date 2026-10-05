@@ -1,0 +1,69 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "aceest-fitness"
+        IMAGE_TAG  = "jenkins-${BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/<YOUR-USERNAME>/aceest-devops.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh '''
+                    . venv/bin/activate
+                    pytest test_app.py -v --tb=short
+                '''
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest"
+            }
+        }
+
+        stage('Smoke Test') {
+            steps {
+                sh '''
+                    docker run -d --name aceest-smoke -p 5001:5000 -e DB_PATH=/tmp/test.db aceest-fitness:latest
+                    sleep 5
+                    curl --fail http://localhost:5001/health
+                    docker stop aceest-smoke
+                    docker rm aceest-smoke
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'rm -rf venv || true'
+            echo "Build #${BUILD_NUMBER} completed."
+        }
+        success {
+            echo "SUCCESS — aceest-fitness:${BUILD_NUMBER} built and tested."
+        }
+        failure {
+            echo "FAILURE — check console output above for errors."
+        }
+    }
+}

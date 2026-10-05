@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Client – ACEest</title>
+  <style>
+    body { background:#1a1a1a; color:#fff; font-family:Arial,sans-serif; }
+    header { background:#d4af37; color:#000; padding:20px 30px; display:flex; justify-content:space-between; align-items:center; }
+    header h1 { font-size:22px; }
+    header a { color:#000; text-decoration:none; font-weight:bold; }
+    .container { max-width:600px; margin:40px auto; padding:0 20px; }
+    .card { background:#222; padding:30px; border-radius:10px; }
+    label { display:block; margin-top:15px; margin-bottom:5px; color:#ccc; }
+    input, select { width:100%; padding:10px; background:#333; border:1px solid #555; color:#fff; border-radius:5px; }
+    .btn { margin-top:25px; padding:12px 30px; background:#d4af37; color:#000; font-weight:bold; border:none; border-radius:5px; cursor:pointer; font-size:15px; }
+    .btn:hover { background:#c9a227; }
+    .back { color:#d4af37; text-decoration:none; display:inline-block; margin-bottom:20px; }
+  </style>
+</head>
+<body>
+  <header><h1>Add New Client</h1><a href="{{ url_for('dashboard') }}">← Dashboard</a></header>
+  <div class="container">
+    <div class="card">
+      <form method="POST">
+        <label>Full Name *</label>
+        <input type="text" name="name" required>
+
+        <label>Age</label>
+        <input type="number" name="age" min="10" max="100">
+
+        <label>Height (cm)</label>
+        <input type="number" name="height" step="0.1">
+
+        <label>Weight (kg)</label>
+        <input type="number" name="weight" step="0.1">
+
+        <label>Program</label>
+        <select name="program">
+          <option value="">-- Select Program --</option>
+          {% for p in programs %}
+          <option value="{{ p }}">{{ p }}</option>
+          {% endfor %}
+        </select>
+
+        <label>Target Weight (kg)</label>
+        <input type="number" name="target_weight" step="0.1">
+
+        <label>Target Adherence (%)</label>
+        <input type="number" name="target_adherence" min="0" max="100">
+
+        <label>Membership End Date</label>
+        <input type="date" name="membership_end">
+
+        <button type="submit" class="btn">Save Client</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
